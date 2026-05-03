@@ -1,0 +1,37 @@
+﻿# Сообщения LegacyRegion. Цвета можно указывать через символ & или §.
+
+# Чтобы поменять формат уведомления игроку, перенесите его ключ между секциями:
+# chat-message отправляет в чат с prefix, toast-message отправляет toast с title.
+
+toast-message:
+  title: "&fРегионы"
+  member-added: "Игрок успешно добавлен в регион"
+  member-removed: "Игрок успешно удален из региона"
+  player-never-joined: "Такой игрок никогда не заходил на сервер"
+  empty-members: "&cВ регионе нет добавленных игроков."
+
+chat-message:
+  prefix: "&f[Регионы]&r "
+  player-only: "&cЭта команда доступна только игроку."
+  usage-addmember: "&cИспользуйте: /rg addmember <ник>"
+  usage-removemember: "&cИспользуйте: /rg removemember <ник>"
+  install-mode-enter: "&fВы вошли в режим установки, поставьте блок региона."
+  install-mode-exit: "&fВы вышли из режима установки региона."
+  install-mode-not-active: "&cВы не находитесь в режиме установки региона."
+  not-region-block: "&cЭтот блок не зарегистрирован как блок региона."
+  region-created: "&fРегион успешно создан"
+  region-overlap: "&cЭтот регион пересекается с уже созданным регионом."
+  action-denied: "&cВы находитесь с чужом регионе"
+  action-denied-display: "actionbar"
+  no-owned-regions: "&cУ вас нет регионов."
+  no-region-for-command: "&cВстаньте внутри своего региона или оставьте только один регион для команды без меню."
+  member-already-added: "&cЭтот игрок уже добавлен в регион."
+  member-not-found: "&cЭтот игрок не добавлен в регион."
+  owner-changed: "&fВладелец региона изменен."
+  region-updated: "&fНастройки региона сохранены."
+  region-deleted: "&fРегион успешно удален."
+  cannot-add-yourself: "&cВы уже владелец этого региона."
+  deleted-region-menu-name: "Удаленный регион"
+  hidden-coordinates: "Координаты скрыты"
+  reload-success: "&fКонфигурация и регионы перезагружены."
+  member-cannot-break-region-block: "§6Владелец §cне разрешил §fвам §cломать §6регион§f."

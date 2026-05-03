@@ -1,0 +1,9 @@
+name: "LegacyRegion"
+version: "1.0.0"
+description: "Кастомизируемые регионы на блоках для Lumi"
+api: ["1.5.0"]
+main: "ru.dzhibrony.legacyregion.LegacyRegion"
+author: "Dzhibrony"
+depend:
+  - "FormConstructor"
+  - "JOOQConnector"

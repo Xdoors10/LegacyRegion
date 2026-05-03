@@ -1,0 +1,14 @@
+name: "Незеритовый регион"
+# true - блок региона включен; false - блок региона не регистрируется плагином.
+enabled: true
+radius: 16
+# true - показывать картинку справа на кнопке региона; false - кнопка будет без картинки.
+button-icon-enabled: true
+button-icon: "textures/blocks/netherite_block"
+# Может ли сам блок региона ломаться от взрывов (ТНТ, кристаллы, визер и т.д.).
+# true - взрыв ломает блок региона и удаляет регион; false - блок региона защищен от взрывов.
+break-from-explosions: false
+block:
+  namespace-id: "minecraft:netherite_block"
+  legacy-id: 525
+  damage: -1

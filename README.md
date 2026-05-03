@@ -25,7 +25,7 @@ LegacyRegion — плагин регионов на блоках для Lumi.
 .\gradlew.bat build
 ```
 
-`https://github.com/MEFRREEX/FormConstructor` и `https://github.com/MEFRREEX/JOOQConnector` должны лежать рядом с плагином в папке `plugins`.
+https://github.com/MEFRREEX/FormConstructor и https://github.com/MEFRREEX/JOOQConnector должны лежать рядом с плагином в папке `plugins`.
 
 ## Настройки
 

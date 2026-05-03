@@ -1,0 +1,60 @@
+# Основные настройки LegacyRegion.
+
+storage:
+  # sqlite хранит данные в database.db. mysql включает подключение к внешней базе.
+  type: sqlite
+  sqlite-file: database.db
+  mysql:
+    host: "127.0.0.1:3306"
+    database: "legacy_region"
+    user: "root"
+    password: ""
+
+command:
+  name: "rg"
+  aliases: ["region", "regions"]
+  description: "Открыть меню регионов"
+  permission: ""
+  permission-message: "&cУ вас нет прав на эту команду."
+
+protection:
+  op-bypass: true
+  prevent-overlap: true
+  deny-drop-item: true
+  deny-entity-damage: false
+  protect-fire-spread: true
+  denied-feedback:
+    message-enabled: false
+    particle-enabled: true
+    particle: "minecraft:basic_smoke_particle"
+
+install-mode:
+  particles:
+    enabled: true
+    identifier: "minecraft:villager_angry"
+    duration-seconds: 5
+    interval-ticks: 10
+    step: 1
+
+hologram:
+  enabled: true
+  require-line-of-sight: true
+  title: ""
+  text: "&fРегион&7: {name}\n&fВладелец&7: &6{owner}"
+  y-offset: 2.2
+  view-distance: 24.0
+  update-interval-ticks: 10
+
+settings:
+  transfer:
+    add-old-owner-as-member: true
+
+block-region-register:
+  - name: "Алмазный регион"
+    file: "diamond_region.yml"
+  - name: "Изумрудный регион"
+    file: "emerald_region.yml"
+  - name: "Незеритовый обломок"
+    file: "ancient_debris_region.yml"
+  - name: "Незеритовый регион"
+    file: "netherite_region.yml"

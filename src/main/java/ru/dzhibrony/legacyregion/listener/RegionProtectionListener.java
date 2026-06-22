@@ -284,9 +284,7 @@ public final class RegionProtectionListener implements Listener {
 
     private Optional<Region> anchorRegion(Block block) {
         RegionLocation location = RegionLocation.from(block);
-        return this.regionService.regionsAt(location).stream()
-                .filter(region -> region.location().equals(location))
-                .findFirst();
+        return this.regionService.anchorAt(location);
     }
 
     private boolean blockAction(PlayerInteractEvent.Action action) {

@@ -8,6 +8,7 @@ import cn.nukkit.level.particle.FloatingTextParticle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.PluginTask;
+import cn.nukkit.scheduler.TaskHandler;
 import cn.nukkit.utils.TextFormat;
 import ru.dzhibrony.legacyregion.config.HologramSettings;
 import ru.dzhibrony.legacyregion.model.Region;
@@ -30,6 +31,7 @@ public final class RegionHologramManager implements RegionChangeListener {
     private final RegionService regionService;
     private final Map<String, HologramView> holograms = new HashMap<>();
     private boolean closed;
+    private TaskHandler visibilityTask;
 
     public RegionHologramManager(PluginBase plugin, HologramSettings settings, RegionService regionService) {
         this.plugin = plugin;
@@ -48,6 +50,10 @@ public final class RegionHologramManager implements RegionChangeListener {
 
     public void close() {
         this.closed = true;
+        if (this.visibilityTask != null) {
+            this.visibilityTask.cancel();
+            this.visibilityTask = null;
+        }
         this.holograms.values().forEach(HologramView::hideAll);
         this.holograms.clear();
     }
@@ -80,7 +86,7 @@ public final class RegionHologramManager implements RegionChangeListener {
 
     private void scheduleVisibilityTask() {
         HologramVisibilityTask task = new HologramVisibilityTask(this.plugin, this);
-        this.plugin.getServer().getScheduler().scheduleDelayedRepeatingTask(task, 1, this.settings.safeUpdateIntervalTicks());
+        this.visibilityTask = this.plugin.getServer().getScheduler().scheduleDelayedRepeatingTask(task, 1, this.settings.safeUpdateIntervalTicks());
     }
 
     private void updateVisibility() {
@@ -111,7 +117,7 @@ public final class RegionHologramManager implements RegionChangeListener {
         private final Level level;
         private final Vector3 position;
         private final FloatingTextParticle particle;
-        private final Map<UUID, Player> viewers = new HashMap<>();
+        private final Set<UUID> viewers = new HashSet<>();
 
         private HologramView(Level level, Region region) {
             this.level = level;
@@ -132,7 +138,7 @@ public final class RegionHologramManager implements RegionChangeListener {
         }
 
         private void hideAll() {
-            new HashSet<>(this.viewers.keySet()).forEach(this::hide);
+            new HashSet<>(this.viewers).forEach(this::hide);
         }
 
         private boolean canSee(Player player) {
@@ -147,23 +153,29 @@ public final class RegionHologramManager implements RegionChangeListener {
         }
 
         private void show(Player player) {
-            if (this.viewers.containsKey(player.getUniqueId())) {
+            if (this.viewers.contains(player.getUniqueId())) {
                 return;
             }
             this.particle.setInvisible(false);
             this.level.addParticle(this.particle, player);
-            this.viewers.put(player.getUniqueId(), player);
+            this.viewers.add(player.getUniqueId());
         }
 
         private void hideMissing(Set<UUID> visibleNow) {
-            new HashSet<>(this.viewers.keySet()).stream()
+            new HashSet<>(this.viewers).stream()
                     .filter(uuid -> !visibleNow.contains(uuid))
                     .forEach(this::hide);
         }
 
         private void hide(UUID uuid) {
-            Player player = this.viewers.remove(uuid);
-            if (player != null && player.isOnline()) {
+            if (!this.viewers.remove(uuid)) {
+                return;
+            }
+            Player player = this.level.getServer().getOnlinePlayers().values().stream()
+                    .filter(p -> p.getUniqueId().equals(uuid))
+                    .findFirst()
+                    .orElse(null);
+            if (player != null) {
                 this.particle.setInvisible(true);
                 this.level.addParticle(this.particle, player);
             }

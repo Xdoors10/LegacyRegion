@@ -4,6 +4,7 @@ import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockPlaceEvent;
+import cn.nukkit.event.player.PlayerQuitEvent;
 import ru.dzhibrony.legacyregion.config.Messages;
 import ru.dzhibrony.legacyregion.service.CreateRegionResult;
 import ru.dzhibrony.legacyregion.service.CreateRegionStatus;
@@ -34,6 +35,11 @@ public final class RegionCreationListener implements Listener {
         }
         CreateRegionResult result = this.regionService.create(event.getPlayer(), event.getBlock());
         this.handleResult(event, result);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onQuit(PlayerQuitEvent event) {
+        this.installModeService.leave(event.getPlayer());
     }
 
     private void handleResult(BlockPlaceEvent event, CreateRegionResult result) {

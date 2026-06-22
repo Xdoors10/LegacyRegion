@@ -36,6 +36,8 @@ public final class LegacyRegion extends PluginBase {
     private ProtectionService protectionService;
     private RegionProtectionListener protectionListener;
     private RegionParticleVisualizer particleVisualizer;
+    private IDatabase database;
+    private InstallModeService installModeService;
 
     @Override
     public void onEnable() {
@@ -56,19 +58,22 @@ public final class LegacyRegion extends PluginBase {
     @Override
     public void onDisable() {
         this.closeHolograms();
+        if (this.installModeService != null) {
+            this.installModeService.clear();
+        }
     }
 
     private void bootstrapServices() {
         RegionRepository repository = this.repository();
         MessageService messages = new MessageService(this.configuration.messages());
-        InstallModeService installMode = new InstallModeService();
+        this.installModeService = new InstallModeService();
         PlayerResolver players = new PlayerResolver(this.getServer());
         this.regionService = this.regionService(repository);
         this.messageService = messages;
         this.registerHolograms();
         RegionMemberService members = new RegionMemberService(this.regionService, players, this.configuration.transfer());
         this.memberService = members;
-        this.registerRuntime(messages, installMode, members);
+        this.registerRuntime(messages, this.installModeService, members);
     }
 
     private void logRegionDefinitions() {
@@ -101,8 +106,8 @@ public final class LegacyRegion extends PluginBase {
     }
 
     private RegionRepository repository() {
-        IDatabase database = DatabaseFactory.create(this.configuration.database(), this.getDataFolder());
-        return new JooqRegionRepository(database);
+        this.database = DatabaseFactory.create(this.configuration.database(), this.getDataFolder());
+        return new JooqRegionRepository(this.database);
     }
 
     private RegionService regionService(RegionRepository repository) {

@@ -200,7 +200,10 @@ public final class JooqRegionRepository implements RegionRepository {
     }
 
     private <T> T query(Function<DSLContext, T> action) {
-        Connection connection = this.database.getConnection().join();
-        return action.apply(DSL.using(connection, this.database.dialect()));
+        try (Connection connection = this.database.getConnection().join()) {
+            return action.apply(DSL.using(connection, this.database.dialect()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

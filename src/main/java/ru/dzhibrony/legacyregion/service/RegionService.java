@@ -10,30 +10,26 @@ import ru.dzhibrony.legacyregion.model.RegionMember;
 import ru.dzhibrony.legacyregion.storage.RegionRepository;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public final class RegionService {
 
     private final RegionRepository repository;
     private ProtectionSettings protectionSettings;
-    private List<RegionDefinition> definitions;
-    private final Map<String, Region> regions = new LinkedHashMap<>();
+    private final RegionDefinitionRegistry definitions;
+    private final RegionIndex regions = new RegionIndex();
     private final List<RegionChangeListener> listeners = new ArrayList<>();
 
     public RegionService(RegionRepository repository, ProtectionSettings protectionSettings, List<RegionDefinition> definitions) {
         this.repository = repository;
         this.protectionSettings = protectionSettings;
-        this.definitions = definitions;
+        this.definitions = new RegionDefinitionRegistry(definitions);
     }
 
     public void load() {
         this.repository.initialize();
-        this.regions.clear();
-        this.repository.loadRegions().forEach(region -> this.regions.put(region.id(), region));
+        this.regions.replaceAll(this.repository.loadRegions());
     }
 
     public CreateRegionResult create(Player player, Block block) {
@@ -46,7 +42,7 @@ public final class RegionService {
 
     public void save(Region region) {
         this.repository.saveRegion(region);
-        this.regions.put(region.id(), region);
+        this.regions.put(region);
         this.listeners.forEach(listener -> listener.onRegionSaved(region));
     }
 
@@ -67,18 +63,12 @@ public final class RegionService {
     }
 
     public List<Region> regionsAt(RegionLocation location) {
-        return this.regions.values().stream()
-                .filter(region -> region.contains(location))
-                .sorted(Comparator.comparingInt(Region::radius))
-                .toList();
+        return this.regions.regionsAt(location);
     }
 
     public List<Region> ownedRegions(Player player) {
         String key = RegionMember.normalize(player.getName());
-        return this.regions.values().stream()
-                .filter(region -> region.isOwner(key))
-                .sorted(Comparator.comparing(Region::id))
-                .toList();
+        return this.regions.ownedBy(key);
     }
 
     public Optional<Region> commandRegion(Player player) {
@@ -90,11 +80,15 @@ public final class RegionService {
     }
 
     public Optional<Region> byId(String id) {
-        return Optional.ofNullable(this.regions.get(id));
+        return this.regions.byId(id);
+    }
+
+    public Optional<Region> anchorAt(RegionLocation location) {
+        return this.regions.anchorAt(location);
     }
 
     public List<Region> allRegions() {
-        return new ArrayList<>(this.regions.values());
+        return this.regions.allRegions();
     }
 
     public void addListener(RegionChangeListener listener) {
@@ -107,13 +101,11 @@ public final class RegionService {
 
     public void updateConfiguration(ProtectionSettings protectionSettings, List<RegionDefinition> definitions) {
         this.protectionSettings = protectionSettings;
-        this.definitions = definitions;
+        this.definitions.replace(definitions);
     }
 
     public Optional<RegionDefinition> definition(Block block) {
-        return this.definitions.stream()
-                .filter(definition -> definition.matches(block))
-                .findFirst();
+        return this.definitions.match(block);
     }
 
     public String displayName(Region region) {
@@ -135,9 +127,7 @@ public final class RegionService {
     }
 
     public Optional<RegionDefinition> definition(Region region) {
-        return this.definitions.stream()
-                .filter(definition -> definition.key().equals(region.definitionKey()))
-                .findFirst();
+        return this.definitions.byRegion(region);
     }
 
     private CreateRegionResult createWithDefinition(Player player, Block block, RegionDefinition definition) {
@@ -161,7 +151,7 @@ public final class RegionService {
 
     private boolean overlaps(Region region) {
         return this.protectionSettings.preventOverlap()
-                && this.regions.values().stream().anyMatch(region::intersects);
+                && !this.regions.intersecting(region).isEmpty();
     }
 
     private List<Region> ownedAtPlayer(Player player) {

@@ -22,6 +22,14 @@ public final class InstallModeService {
         return this.players.contains(this.key(player));
     }
 
+    public void remove(String playerKey) {
+        this.players.remove(playerKey);
+    }
+
+    public void clear() {
+        this.players.clear();
+    }
+
     private String key(Player player) {
         return RegionMember.normalize(player.getName());
     }
